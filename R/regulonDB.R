@@ -1,15 +1,13 @@
 #' regulonDB
 #'
 #' @description Management of SQLite Databases and Query of Fields tools
-#' Depends of \RSQLite, \DBI, \dplyr, \dbplyr
 #' @param database RSQLite object imported previously from an SQLite database file to R
 #' @param mart Dataset table into the database, use the syntax "dataset"
 #' @param filters A character vector with filters with the restrictions of the query restriction of the query
 #' @param value A character vector with the corresponding values for filters
 #' @param cond Conditional when more than one filter is used "and", "or","not
-#' @examples
-#' @export
-#' ## import the SQLite database
+#' @import RSQLite, DBI, dplyr, dbplyr
+#' @examples ## import the SQLite database
 #' ## path_sqlite3 <- file.choose()
 #' regulon <- DBI::dbConnect(RSQLite::SQLite(), path_sqlite3)
 #' listDatasets(regulon)
@@ -22,26 +20,6 @@
 #' cond = "and")
 #' GetRegulatedGenesByTF(regulon, "Ara")
 #'  dbDisconnect(regulon)
-
-#Install packages if needed
-
-if (!require("RSQLite")) {
-  install.packages("RSQLite", ask =FALSE)
-  library(RSQLite)
-}
-if (!require("dplyr")) {
-  install.packages("dplyr", ask =FALSE)
-  library(dplyr)
-}
-if (!require("dbplyr")) {
-  install.packages("dbplyr", ask =FALSE)
-  library(dbplyr)
-}
-if (!require("DBI")) {
-  install.packages("DBI", ask =FALSE)
-  library(DBI)
-}
-
 #' @export
 listDatasets <- function(database){
   dbListTables(database)
@@ -100,29 +78,29 @@ getGeneRegulation <- function( database, genes, format, output.type  ) {
   ## Output.type has no stable definition an is not implemented yet. Near future implementation after more design thinking
   ## Create base stringfor the query request
   query_cmd <- "SELECT * FROM GENE WHERE"
-  
+
   ## loop to dynamically construct the final query request
   for (i in 1:length(genes)) {
     if (i == 1) {
-      query_cmd <- paste0(query_cmd," name = '",genes[i],"'") 
+      query_cmd <- paste0(query_cmd," name = '",genes[i],"'")
     } else {
-      query_cmd <- paste0(query_cmd," or"," name = '",genes[i],"'") 
+      query_cmd <- paste0(query_cmd," or"," name = '",genes[i],"'")
     }
   }
-  
+
   ## Create the query instruction
   query_cmd <- dbSendQuery(database, query_cmd)
   ## request the query, keep only columns name and gene_tf, and store it in a temporary df
   tempdf <- dbFetch(query_cmd)[,c("name","gene_tf")]
   ## change header names
   colnames(tempdf) <- c("genes","regulators")
-  
+
   ## create a third temporal column to store useful regulator ID data (this wont be showed in the user output)
   tempdf$regulator_id <- ""
-  
+
   ## create another empty df to populate with one line per regulator, for concantenating transient results
   tempdf3 <- tempdf[0,]
-  
+
   ## Vectorize each cell in the regulators column
   ## operate in a for loop
   for (j in 1:nrow(tempdf)) {
@@ -130,16 +108,16 @@ getGeneRegulation <- function( database, genes, format, output.type  ) {
     tempvec0 <- gsub("\t", " ", tempdf[j,"regulators"])
     ## split every term in from the original regulator values
     tempvec0 <- unlist(strsplit(tempvec0, split = c(" ")))
-    
+
     ## Eliminate the ECKnnnnnnn values, to keep only regulator Names
     tempvec1 <- tempvec0[!grepl("ECK", x = tempvec0)]
-    
+
     ## find the ECKnnnnnnn values, to keep only regulator ECK id's
     tempvec2 <- tempvec0[grepl("ECK", x = tempvec0)]
-    
+
     ## create an empty df to transiently populate with one line per regulator
     tempdf2 <- tempdf[0,]
-    
+
     ## For every element in the regulators vector, print one line of the original tempdf in the second tempdf
     ## n keeps count of the vector of regulators, and i keeps track of the regulated gene beign evaluated
     for (n in 1:length(tempvec1)) {
@@ -149,18 +127,18 @@ getGeneRegulation <- function( database, genes, format, output.type  ) {
       tempdf2[n,"regulators"] <- tempvec1[n]
       ## populate one by one, the ID for regulator factors detected for the gene
       tempdf2[n,"regulator_id"] <- tempvec2[n]
-    } 
-    
+    }
+
     tempdf3 <- rbind(tempdf3,tempdf2)
-    
+
   }
-  
+
   ## Recover effect data for every gene:regulator pair
   ## Said data is in NETWORK table
-  
+
   ##Create empty column to store effect
   tempdf3$effect <- ""
-  
+
   for (k in 1:nrow(tempdf3)) {
     ## check if regulator value is NA and assign NA to effect function
     if ( is.na(tempdf3[k,"regulators"])) {
@@ -180,40 +158,40 @@ getGeneRegulation <- function( database, genes, format, output.type  ) {
       tempdf3[k,"effect"] <- dbFetch(query_cmd)[,c("effect")]
     }
   }
-  
+
   ## translate string values of effect to +,-,+- codes
   tempdf3[,"effect"] <- gsub("dual","+-",tempdf3[,"effect"])
   tempdf3[,"effect"] <- gsub("activator","+",tempdf3[,"effect"])
   tempdf3[,"effect"] <- gsub("repressor","+-",tempdf3[,"effect"])
-  
+
   ## remove the regulator_id not originally requested by the design (but used to query the SQLite db)
   tempdf3 <- tempdf3[,c("genes","regulators","effect")]
-  
+
   ###
   ## transform results to one row per gene results
-  
+
   ## start an empty temp df to store transient data
   tempdf4 <- tempdf3[0,c("genes","regulators")]
-  
+
   ## Define a vector with every unique gene in the data set
   unique_genes <- unique(tempdf3[,"genes"])
-  
+
   ## Start a for loop to iteratively generate the data row for every gene
   for (l in 1:length(unique_genes)) {
-    
+
     ## create an internal df to perform concatenations more readably
     tempdf <- tempdf3[ tempdf3$genes == unique_genes[l],]
-    
+
     ## Store data per row, per gene
     tempdf4[l,"genes"] <- unique_genes[l]
     ## concatenate columns and paste collapse into a single string, comma separated
     tempdf4[l,"regulators"] <- paste0(tempdf$regulators,"(",tempdf$effect,")", collapse = ",")
-    
+
   }
-  
+
   ## Pass the multi row format to table format
   tempdf5 <- spread(tempdf3, regulators, effect)
-  
+
   ## Up to this points, two data objects have been generated:
   ## table 3 is the multirow format requested
   ## table 4 is the onerow format requested
