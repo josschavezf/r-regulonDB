@@ -1,0 +1,76 @@
+---
+title: "regulonDB"
+author: "Joselyn Chavez, Idalia Rojas, Israel Aguilar, Raul Mejia"
+date: "August 2018"
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{regulonDB}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+regulonDB package takes an RSQLite object imported previously from an SQLite database file to R.
+    
+- Shows datasets available in the database and the fields of the data. 
+- Filter specific fields and search for rows that match with specific characteristics.
+
+## Libraries needed
+
+- RSQLite
+- DBI
+- dplyr
+- dbplyr
+
+## Import an SQLite dataset
+
+This step sholud be executed by the user before use the functions of regulonDB package. An example to load to R the SQLite object is:
+
+```
+  path_sqlite3 <- file.choose()
+  regulon <- DBI::dbConnect(RSQLite::SQLite(), path_sqlite3)
+```
+
+## listDatasets
+
+Prints all marts contained in the SQL object
+
+```
+  listDatasets(regulon)
+```
+
+## listAttributes 
+
+Prints a list of the columns of the mart
+
+```
+  listAttributes(regulon, "TF")
+```
+
+## getAttr
+
+Allows users to filter and retrieve data from a particular mart from SQLite database.
+
+```
+  getAttr(
+    database = regulon,
+    mart = "GENE",
+    filters = c("operon_id", "operon_name"),
+    value = c("ECK125235983","cmoM-mukFEB" ),
+    cond = "and")
+```
+
+## GetRegulatedGenesByTF
+
+Shows all the genes regulated by a Transcription Factor indicated by the user
+
+```
+  GetRegulatedGenesByTF(regulon, "Ara")
+```
+
