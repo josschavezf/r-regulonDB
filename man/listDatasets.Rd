@@ -2,7 +2,7 @@
 % Please edit documentation in R/regulonDB.R
 \name{listDatasets}
 \alias{listDatasets}
-\title{regulonDB}
+\title{listDatasets}
 \usage{
 listDatasets(database)
 }
@@ -10,7 +10,7 @@ listDatasets(database)
 \item{database}{RSQLite object imported previously from an SQLite database file to R}
 }
 \description{
-Management of SQLite Databases and Query of Fields tools
+Prints all marts contained in the SQL object
 }
 \examples{
 ## import the SQLite database

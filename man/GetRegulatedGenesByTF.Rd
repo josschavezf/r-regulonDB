@@ -2,7 +2,7 @@
 % Please edit documentation in R/regulonDB.R
 \name{GetRegulatedGenesByTF}
 \alias{GetRegulatedGenesByTF}
-\title{##GenRegulatedGenesByTF}
+\title{GenRegulatedGenesByTF}
 \usage{
 GetRegulatedGenesByTF(database, tf)
 }
@@ -12,5 +12,20 @@ GetRegulatedGenesByTF(database, tf)
 \item{mart}{Dataset table into the database, use the syntax "dataset"}
 }
 \description{
-##GenRegulatedGenesByTF
+Shows all the genes regulated by a Transcription Factor indicated by the user
+}
+\examples{
+## import the SQLite database
+## path_sqlite3 <- file.choose()
+regulon <- DBI::dbConnect(RSQLite::SQLite(), path_sqlite3)
+listDatasets(regulon)
+listAttributes(regulon, "TF")
+getAttr(
+database = regulon,
+mart = "GENE",
+filters = c("operon_id", "operon_name"),
+value = c("ECK125235983","cmoM-mukFEB" ),
+cond = "and")
+GetRegulatedGenesByTF(regulon, "Ara")
+ dbDisconnect(regulon)
 }

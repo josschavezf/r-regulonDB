@@ -2,7 +2,7 @@
 % Please edit documentation in R/regulonDB.R
 \name{getAttr}
 \alias{getAttr}
-\title{##genAttr}
+\title{genAttr}
 \usage{
 getAttr(database, mart, filters, value, cond)
 }
@@ -15,8 +15,21 @@ getAttr(database, mart, filters, value, cond)
 
 \item{value}{A character vector with the corresponding values for filters}
 
-\item{cond}{Conditional when more than one filter is used "and", "or","not}
+\item{cond}{Conditional when more than one filter is used "and", "or","not
+#' @examples ## import the SQLite database
+## path_sqlite3 <- file.choose()
+regulon <- DBI::dbConnect(RSQLite::SQLite(), path_sqlite3)
+listDatasets(regulon)
+listAttributes(regulon, "TF")
+getAttr(
+database = regulon,
+mart = "GENE",
+filters = c("operon_id", "operon_name"),
+value = c("ECK125235983","cmoM-mukFEB" ),
+cond = "and")
+GetRegulatedGenesByTF(regulon, "Ara")
+ dbDisconnect(regulon)}
 }
 \description{
-##genAttr
+Allows users to filter and retrieve data from a particular mart from SQLite database.
 }
