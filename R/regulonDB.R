@@ -91,6 +91,7 @@ getAttr <- function(database, mart, filters, value, cond ){
 ### TO-DO
 ## () improve sql request, conections, and FIND if connections needs to be closed to avoid the warnings that say: "Closing open result set, pending rows"
 ## () design unit test
+## () dont create every posible data table format, and then print the one requested; instead, add conditionals to know which format was requested, and only execute the corresponding code blocks if needed.
 
 ## Function to retrieve data for Gene-TF pairs in regulonDB SQLite database
 
