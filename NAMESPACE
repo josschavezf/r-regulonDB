@@ -2,5 +2,10 @@
 
 export(GetRegulatedGenesByTF)
 export(getAttr)
+export(getGeneRegulation)
 export(listAttributes)
 export(listDatasets)
+import(DBI)
+import(RSQLite)
+import(dbplyr)
+import(dplyr)

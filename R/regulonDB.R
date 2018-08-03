@@ -2,11 +2,10 @@
 #'
 #' @description Management of SQLite Databases and Query of Fields tools
 #' @param database RSQLite object imported previously from an SQLite database file to R
-#' @param mart Dataset table into the database, use the syntax "dataset"
-#' @param filters A character vector with filters with the restrictions of the query restriction of the query
-#' @param value A character vector with the corresponding values for filters
-#' @param cond Conditional when more than one filter is used "and", "or","not
-#' @import RSQLite, DBI, dplyr, dbplyr
+#' @import RSQLite
+#' @import DBI
+#' @import dplyr
+#' @import dbplyr
 #' @examples ## import the SQLite database
 #' ## path_sqlite3 <- file.choose()
 #' regulon <- DBI::dbConnect(RSQLite::SQLite(), path_sqlite3)
@@ -25,6 +24,9 @@ listDatasets <- function(database){
   dbListTables(database)
 }
 
+#' ##listAttributes
+#' @param database RSQLite object imported previously from an SQLite database file to R
+#' @param mart Dataset table into the database, use the syntax "dataset"
 #' @export
 listAttributes <- function(database, mart) {
   tryCatch(
@@ -38,6 +40,9 @@ listAttributes <- function(database, mart) {
   )
 }
 
+#' ##GenRegulatedGenesByTF
+#' @param database RSQLite object imported previously from an SQLite database file to R
+#' @param mart Dataset table into the database, use the syntax "dataset"
 #' @export
 GetRegulatedGenesByTF <- function(database,tf){
   genes_regulon <- tbl(database, "GENE")
@@ -50,6 +55,12 @@ GetRegulatedGenesByTF <- function(database,tf){
 
 }
 
+#' ##genAttr
+#' @param database RSQLite object imported previously from an SQLite database file to R
+#' @param mart Dataset table into the database, use the syntax "dataset"
+#' @param filters A character vector with filters with the restrictions of the query restriction of the query
+#' @param value A character vector with the corresponding values for filters
+#' @param cond Conditional when more than one filter is used "and", "or","not
 #' @export
 getAttr <- function(database, mart, filters, value, cond ){
   query_cmd <- "SELECT * FROM "
@@ -65,6 +76,12 @@ getAttr <- function(database, mart, filters, value, cond ){
   attributes
 }
 
+#' ##getGeneRegulation
+#' @param database RSQLite object imported previously from an SQLite database file to R
+#' @param mart Dataset table into the database, use the syntax "dataset"
+#' @param genes genes of interest
+#' @param format onerow, multirow, table
+#' @param output.type output object
 #' @export
 ### TO-DO
 ## () improve sql request, conections, and FIND if connections needs to be closed to avoid the warnings that say: "Closing open result set, pending rows"
