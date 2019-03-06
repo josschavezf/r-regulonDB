@@ -1,3 +1,9 @@
 regulonDB is an R package with functions that allows to import SQL databases and then search or visualize data of interest.
 
-To use regulonDB package: download regulonDB.Rproj, R folder and install it in your R session.  
+To install regulonDB in R run the next lines in your R session:
+
+```
+install.packages("devtools")
+library(devtools)
+install_github("josschavezf/regulonDB")
+```
