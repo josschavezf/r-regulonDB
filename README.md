@@ -13,7 +13,4 @@ install_github("josschavezf/regulonDB")
 library(regulonDB)
 ```
 
-## Contact
 
-joselynchavezf@gmail.com
-jchavezf@ibt.unam.mx
