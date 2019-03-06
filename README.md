@@ -4,7 +4,7 @@ regulonDB is an R package with functions that allows to import SQLite databases 
 
 ## Installing
 
-To install regulonDB in R run the next lines in your R session:
+To download and install regulonDB run the next lines in your R session:
 
 ```
 install.packages("devtools")
